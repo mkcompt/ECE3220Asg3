@@ -131,7 +131,6 @@ int main (){
         }
     }
 
-
     freopen("/dev/tty", "r", stdin);
     printf("Enter Disk # to simulating failure: ");
     scanf("%d", &failed_disk);
@@ -139,7 +138,6 @@ int main (){
     simulateFailure(failed_disk);
     
     printRaid5Disks();
-
 
     return 0;
 }
