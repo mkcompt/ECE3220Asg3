@@ -132,12 +132,31 @@ int main (){
     }
 
     freopen("/dev/tty", "r", stdin);
+    printf("\n");
     printf("Enter Disk # to simulating failure: ");
     scanf("%d", &failed_disk);
     printf("Disk %d failed.\n", failed_disk);
+    printf("\n");
     simulateFailure(failed_disk);
-    
     printRaid5Disks();
+
+    for (int i = 0; i < 3; i++) {
+        for (int z = 0; z < 4; z++) {
+            printf("parity (%d, %d, %d): ", z, i, i);
+            if (i == failed_disk) {
+                printf("%s\n", parity[z][i][i]);
+            }
+            else{
+                for (int byte = 0; byte < 16; byte++) {
+                    for (int bit = 7; bit >= 0; bit--) {
+                        printf("%d", (parity[z][i][i][byte] >> bit) & 1);
+                    }
+                }
+                printf("\n");
+            }
+            
+        }
+    }
 
     return 0;
 }
