@@ -36,21 +36,56 @@ void createRaid5(char *input, int num_disks, int num_stripes){
     }
 }
 
-// make this more human
 void calculateParity(char* input){
-    for (int stripe = 0; stripe < 3; stripe++) {
-        for (int row = 0; row < 4; row++) {
-            for (int byte = 0; byte < 16; byte++) {
+    (void)input; // Dont need to pass in input since we already have the data in my global data_blocks variable
+    for(int i = 0; i < 3; i++){ // loop stripes
+        for (int j = 0; j<4; j++){ // loop rows
+            for (int z = 0; z <16; z++){ // loop bytes
                 char xor_result = 0;
-                for (int disk = 0; disk < 5; disk++) {
-                    if (disk == stripe){
+                for (int d = 0; d < 5; d++){ // loop disks
+                    if (d == i){
                         continue;
                     }
-                    xor_result = xor_result ^ data_blocks[disk][stripe][row][byte];
+                    xor_result = xor_result ^ data_blocks[d][i][j][z]; // xor each character to the same character in the other disks
                 }
-                parity[row][stripe][stripe][byte] = xor_result;
+                parity[j][i][i][z] = xor_result;
             }
-            parity[row][stripe][stripe][16] = '\0';
+            parity[j][i][i][16] = '\0';
+        }
+    }
+}
+
+void restoreData(){
+    int disk_to_restore = failed_disk;
+    for (int i = 0; i < 3; i ++){
+        for (int j = 0; j<4; j++){
+            for (int b = 0; b < 16; b++){
+                char xor_result = 0;
+                for (int d = 0; d < 5; d++){
+                    if (d == disk_to_restore){
+                        continue;
+                    }
+                    if (d == i){
+                        xor_result = xor_result ^ parity[j][d][i][b];
+                    }
+                    else{
+                        xor_result = xor_result ^ data_blocks[d][i][j][b];
+                    }
+                }
+                if (disk_to_restore == i){
+                    parity[j][disk_to_restore][i][b] = xor_result;
+                }
+                else{
+                    data_blocks[disk_to_restore][i][j][b] = xor_result;
+                }
+            }
+            if (disk_to_restore == i){
+                parity[j][disk_to_restore][i][16] = '\0';
+                sprintf(data_blocks[disk_to_restore][i][j], "parity(%d, %d, %d)", j, disk_to_restore, i);
+            }
+            else{
+                data_blocks[disk_to_restore][i][j][16] = '\0';
+            }
         }
     }
 }
@@ -155,6 +190,31 @@ int main (){
                 printf("\n");
             }
             
+        }
+    }
+
+    printf("\n\n");
+    printf("Rebuilding the data... \n\n");
+
+    restoreData();
+    printRaid5Disks();
+
+    for (int i = 0; i < 5; i++){
+        for(int j = 0; j< 3; j++){
+            for(int z = 0; z<4; z++){
+                if(j == i){
+                    printf("Parity(%d, %d, %d): ", z, i ,j);
+                    for (int byte = 0; byte < 16; byte++) {
+                        for (int bit = 7; bit >= 0; bit--) {
+                            printf("%d", (parity[z][i][i][byte] >> bit) & 1);
+                        }
+                    }  
+                    printf("\n");         
+                }
+                else{
+                    continue;
+                }
+            }
         }
     }
 
