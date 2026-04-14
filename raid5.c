@@ -95,7 +95,7 @@ void restoreData(){
             // here we add the null terminators to the correct arrays
             if (disk_to_restore == i){
                 parity[j][disk_to_restore][i][16] = '\0';
-                sprintf(data_blocks[disk_to_restore][i][j], "parity(%d, %d, %d)", j, disk_to_restore, i); // need to write back the parity (x,y,z) for printing in the table
+                sprintf(data_blocks[disk_to_restore][i][j], "parity(%d,%d,%d)", j, disk_to_restore, i); // need to write back the parity (x,y,z) for printing in the table
             }
             else{
                 data_blocks[disk_to_restore][i][j][16] = '\0';
@@ -107,7 +107,7 @@ void restoreData(){
 // function that prints the raided disks
 void printRaid5Disks(void){
     printf("*****************************************************************************************************************************\n");
-    printf("%-25s %-25s %-25s %-25s %-25s\n", "Disk[0]", "Disk[1]", "Disk[2]", "Disk[3]", "Disk[4]");
+    printf("%-25s %-25s %-25s %-25s %-25s\n", "[Disk0]", "[Disk1]", "[Disk2]", "[Disk3]", "[Disk4]");
     printf("%-25s %-25s %-25s %-25s %-25s\n", "strip (0, 0)", "strip (1, 0)", "strip (2, 0)", "strip (3, 0)", "strip (4, 0)");
     printf("-----------------------------------------------------------------------------------------------------------------------------\n");
     printf("%-25s %-25s %-25s %-25s %-25s\n", data_blocks[0][0][0], data_blocks[1][0][0], data_blocks[2][0][0], data_blocks[3][0][0], data_blocks[4][0][0]);
@@ -148,7 +148,7 @@ void simulateFailure(int disk_num){
 
 int main (){
     // creates a input buffer with some extra space for the input redirection
-    char input[800];
+    char input[800] = {0}; // esnures that if input small, the remaining values are not garbage when printed
     char character;
     int index = 0;
 
@@ -160,6 +160,7 @@ int main (){
         input[index++] = character;
 
     }
+    input[index] = '\0'; // null terminates the input string
 
     createRaid5(input, 5, 3);
     printf("Creating RAID 5 reliable storage system\n");
@@ -171,7 +172,7 @@ int main (){
         for(int j = 0; j< 3; j++){
             for(int z = 0; z<4; z++){
                 if(j == i){
-                    printf("Parity(%d, %d, %d): ", z, i ,j);
+                    printf("parity(%d, %d, %d): ", z, i ,j);
                     // Prints the values as binary
                     for (int byte = 0; byte < 16; byte++) {
                         for (int bit = 7; bit >= 0; bit--) {
@@ -229,7 +230,7 @@ int main (){
         for(int j = 0; j< 3; j++){
             for(int z = 0; z<4; z++){
                 if(j == i){
-                    printf("Parity(%d, %d, %d): ", z, i ,j);
+                    printf("parity(%d, %d, %d): ", z, i ,j);
                     for (int byte = 0; byte < 16; byte++) {
                         for (int bit = 7; bit >= 0; bit--) {
                             printf("%d", (parity[z][i][i][byte] >> bit) & 1);
